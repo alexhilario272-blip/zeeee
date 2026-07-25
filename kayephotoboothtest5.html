@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Floral Photobooth 🌻🌸</title>
+    <style>
+        :root {
+            --primary-pink: #ffb7c5;
+            --accent-pink: #ff85a1;
+            --soft-white: #fff9fb;
+            --text-color: #5a3d46;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--soft-white);
+            color: var(--text-color);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* --- Floral Decorations --- */
+        .flower {
+            position: absolute;
+            font-size: 3rem;
+            z-index: 1;
+            pointer-events: none;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        .flower-top-left { top: 20px; left: 20px; animation-delay: 0s; }
+        .flower-top-right { top: 20px; right: 20px; animation-delay: 1.5s; }
+        .flower-bottom-left { bottom: 20px; left: 20px; animation-delay: 3s; }
+        .flower-bottom-right { bottom: 20px; right: 20px; animation-delay: 4.5s; }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-10px) rotate(5deg); }
+        }
+
+        /* --- Header --- */
+        header {
+            text-align: center;
+            margin-bottom: 20px;
+            z-index: 2;
+        }
+
+        h1 {
+            color: var(--accent-pink);
+            font-size: 2.5rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.05);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        p.subtitle {
+            color: #885b68;
+            font-style: italic;
+        }
+
+        /* --- Main Layout --- */
+        .container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 30px;
+            justify-content: center;
+            align-items: flex-start;
+            max-width: 1000px;
+            width: 100%;
+            z-index: 2;
+        }
+
+        /* --- Booth / Camera Section --- */
+        .booth-card {
+            background: white;
+            padding: 20px;
+            border-radius: 24px;
+            box-shadow: 0 10px 25px rgba(255, 133, 161, 0.2);
+            border: 4px solid var(--primary-pink);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+            flex: 1;
+            min-width: 320px;
+        }
+
+        .viewport {
+            position: relative;
+            width: 100%;
+            max-width: 400px;
+            aspect-ratio: 4/3;
+            border-radius: 16px;
+            overflow: hidden;
+            background: #ffe3e8;
+            border: 2px solid var(--primary-pink);
+        }
+
+        video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transform: scaleX(-1); /* Mirror view */
+        }
+
+        /* Filters */
+        .filter-none { filter: none; }
+        .filter-warm { filter: sepia(0.3) saturate(1.2) contrast(1.05); }
+        .filter-bw { filter: grayscale(1) contrast(1.1); }
+        .filter-soft { filter: brightness(1.05) saturate(0.8) blur(0.3px); }
+
+        .countdown-overlay {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(255, 183, 197, 0.4);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 5rem;
+            color: white;
+            font-weight: bold;
+            text-shadow: 2px 2px 8px rgba(0,0,0,0.3);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s;
+        }
+
+        .countdown-overlay.active {
+            opacity: 1;
+        }
+
+        .controls {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            width: 100%;
+        }
+
+        .filter-select {
+            padding: 10px;
+            border-radius: 12px;
+            border: 2px solid var(--primary-pink);
+            background: var(--soft-white);
+            color: var(--text-color);
+            font-weight: bold;
+            outline: none;
+            cursor: pointer;
+        }
+
+        .btn {
+            background-color: var(--accent-pink);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            font-size: 1rem;
+            font-weight: bold;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: transform 0.1s, background-color 0.2s;
+            box-shadow: 0 4px 10px rgba(255, 133, 161, 0.4);
+        }
+
+        .btn:hover {
+            background-color: #ff6b8b;
+            transform: translateY(-2deg);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn:disabled {
+            background-color: #ccc;
+            box-shadow: none;
+            cursor: not-allowed;
+        }
+
+        /* --- Photo Strip Display Section --- */
+        .strip-card {
+            background: white;
+            padding: 20px;
+            border-radius: 24px;
+            box-shadow: 0 10px 25px rgba(255, 133, 161, 0.2);
+            border: 4px solid var(--primary-pink);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .photo-strip {
+            background: white;
+            padding: 15px 15px 30px 15px;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            width: 180px;
+            border: 1px solid #ffe3e8;
+            position: relative;
+        }
+
+        .strip-photo {
+            width: 100%;
+            aspect-ratio: 4/3;
+            background: #ffe3e8;
+            border-radius: 4px;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #ff85a1;
+            font-size: 0.8rem;
+        }
+
+        .strip-photo img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .strip-footer {
+            text-align: center;
+            margin-top: 10px;
+            font-size: 0.8rem;
+            color: var(--accent-pink);
+            font-weight: bold;
+        }
+
+        /* Canvas (Hidden) */
+        canvas {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Floral Background Elements -->
+    <div class="flower flower-top-left">🌻🌺</div>
+    <div class="flower flower-top-right">🌸🌻</div>
+    <div class="flower flower-bottom-left">🌸🌻</div>
+    <div class="flower flower-bottom-right">🌻🌺</div>
+
+    <header>
+        <h1><span>🌻</span> Bloom Photobooth <span>🌸</span></h1>
+        <p class="subtitle">Capture your sunshine & blossoms</p>
+    </header>
+
+    <div class="container">
+        <!-- Live Camera View -->
+        <div class="booth-card">
+            <div class="viewport">
+                <video id="webcam" autoplay playsinline class="filter-none"></video>
+                <div id="countdown" class="countdown-overlay">3</div>
+            </div>
+
+            <div class="controls">
+                <select id="filterSelect" class="filter-select">
+                    <option value="filter-none">Filter: Normal</option>
+                    <option value="filter-warm">Filter: Warm Sunset ☀️</option>
+                    <option value="filter-soft">Filter: Soft Bloom 🌸</option>
+                    <option value="filter-bw">Filter: B&W Vintage 🖤</option>
+                </select>
+
+                <button id="snapBtn" class="btn">Take 4 Photos 📸</button>
+            </div>
+        </div>
+
+        <!-- Photo Strip Preview -->
+        <div class="strip-card">
+            <div id="photoStrip" class="photo-strip">
+                <div class="strip-photo">Photo 1</div>
+                <div class="strip-photo">Photo 2</div>
+                <div class="strip-photo">Photo 3</div>
+                <div class="strip-photo">Photo 4</div>
+                <div class="strip-footer">🌻 BLOOM 🌸</div>
+            </div>
+
+            <button id="downloadBtn" class="btn" disabled>Download Strip 💾</button>
+        </div>
+    </div>
+
+    <canvas id="hiddenCanvas"></canvas>
+
+    <script>
+        const video = document.getElementById('webcam');
+        const snapBtn = document.getElementById('snapBtn');
+        const downloadBtn = document.getElementById('downloadBtn');
+        const filterSelect = document.getElementById('filterSelect');
+        const countdownOverlay = document.getElementById('countdown');
+        const photoSlots = document.querySelectorAll('.strip-photo');
+        const canvas = document.getElementById('hiddenCanvas');
+        const ctx = canvas.getContext('2d');
+
+        let capturedImages = [];
+
+        // 1. Initialize Webcam
+        async function initCamera() {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ 
+                    video: { width: 640, height: 480 }, 
+                    audio: false 
+                });
+                video.srcObject = stream;
+            } catch (err) {
+                alert("Camera access denied or unavailable. Please allow camera permissions to use the photobooth!");
+                console.error("Camera error:", err);
+            }
+        }
+
+        // 2. Filter Change
+        filterSelect.addEventListener('change', (e) => {
+            video.className = e.target.value;
+        });
+
+        // 3. Countdown Helper
+        function runCountdown(seconds) {
+            return new Promise((resolve) => {
+                let count = seconds;
+                countdownOverlay.textContent = count;
+                countdownOverlay.classList.add('active');
+
+                const interval = setInterval(() => {
+                    count--;
+                    if (count > 0) {
+                        countdownOverlay.textContent = count;
+                    } else {
+                        clearInterval(interval);
+                        countdownOverlay.classList.remove('active');
+                        resolve();
+                    }
+                }, 1000);
+            });
+        }
+
+        // 4. Capture Sequence
+        snapBtn.addEventListener('click', async () => {
+            snapBtn.disabled = true;
+            downloadBtn.disabled = true;
+            capturedImages = [];
+
+            // Reset slots
+            photoSlots.forEach((slot, idx) => {
+                slot.innerHTML = `Photo ${idx + 1}`;
+            });
+
+            for (let i = 0; i < 4; i++) {
+                await runCountdown(3);
+                
+                // Flash effect
+                countdownOverlay.style.background = 'white';
+                countdownOverlay.classList.add('active');
+                setTimeout(() => countdownOverlay.classList.remove('active'), 100);
+                countdownOverlay.style.background = 'rgba(255, 183, 197, 0.4)';
+
+                // Draw frame to canvas
+                canvas.width = video.videoWidth || 640;
+                canvas.height = video.videoHeight || 480;
+
+                ctx.save();
+                // Mirror horizontally to match preview
+                ctx.translate(canvas.width, 0);
+                ctx.scale(-1, 1);
+                
+                // Apply current CSS filter to Canvas context
+                ctx.filter = getComputedStyle(video).filter;
+                ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+                ctx.restore();
+
+                const dataUrl = canvas.toDataURL('image/png');
+                capturedImages.push(dataUrl);
+
+                // Preview in photo strip slot
+                photoSlots[i].innerHTML = `<img src="${dataUrl}" alt="Photo ${i + 1}">`;
+            }
+
+            snapBtn.disabled = false;
+            downloadBtn.disabled = false;
+        });
+
+        // 5. Generate & Download Combined Photo Strip
+        downloadBtn.addEventListener('click', () => {
+            if (capturedImages.length < 4) return;
+
+            const stripCanvas = document.createElement('canvas');
+            const sCtx = stripCanvas.getContext('2d');
+
+            const photoWidth = 400;
+            const photoHeight = 300;
+            const padding = 20;
+            const bottomMargin = 80;
+
+            stripCanvas.width = photoWidth + (padding * 2);
+            stripCanvas.height = (photoHeight * 4) + (padding * 5) + bottomMargin;
+
+            // Background Fill (Soft White)
+            sCtx.fillStyle = '#ffffff';
+            sCtx.fillRect(0, 0, stripCanvas.width, stripCanvas.height);
+
+            // Border/Frame
+            sCtx.strokeStyle = '#ffb7c5';
+            sCtx.lineWidth = 6;
+            sCtx.strokeRect(3, 3, stripCanvas.width - 6, stripCanvas.height - 6);
+
+            let loadedCount = 0;
+
+            capturedImages.forEach((src, index) => {
+                const img = new Image();
+                img.onload = () => {
+                    const x = padding;
+                    const y = padding + index * (photoHeight + padding);
+                    sCtx.drawImage(img, x, y, photoWidth, photoHeight);
+
+                    loadedCount++;
+                    if (loadedCount === 4) {
+                        // Draw Decorative Footer Text & Emojis
+                        sCtx.fillStyle = '#ff85a1';
+                        sCtx.font = 'bold 28px "Segoe UI", sans-serif';
+                        sCtx.textAlign = 'center';
+                        sCtx.fillText('🌻 BLOOM PHOTOBOOTH 🌸', stripCanvas.width / 2, stripCanvas.height - 35);
+
+                        // Trigger download
+                        const link = document.createElement('a');
+                        link.download = 'floral-photobooth-strip.png';
+                        link.href = stripCanvas.toDataURL('image/png');
+                        link.click();
+                    }
+                };
+                img.src = src;
+            });
+        });
+
+        // Start webcam on load
+        initCamera();
+    </script>
+</body>
+</html>
